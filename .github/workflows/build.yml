@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Gradle itself runs on JDK 21. The 26.2 subproject needs a JDK 25
+      # toolchain, which the foojay resolver (configured in settings.gradle.kts)
+      # auto-provisions on first build; we cache it below.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache auto-provisioned JDK toolchains
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/jdks
+          key: gradle-jdks-${{ runner.os }}
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build all versions
+        run: ./gradlew chiseledBuild --stacktrace
+
+      - name: Upload jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: weathering-chamber-jars
+          path: |
+            versions/*/build/libs/*.jar
+            !versions/*/build/libs/*-sources.jar
+          if-no-files-found: error
