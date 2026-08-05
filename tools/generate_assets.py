@@ -42,6 +42,17 @@ IRON = (0x53, 0x53, 0x5a)
 IRON_HI = (0x7d, 0x7d, 0x86)
 IRON_D = (0x39, 0x39, 0x40)
 DARK = (0x1c, 0x1c, 0x20)
+# Recipe-material accents: copper (fresh) weathering to verdigris (oxidised),
+# and dripstone brown. These tie the block to its crafting ingredients.
+COPPER = (0xc0, 0x6e, 0x4f)
+COPPER_D = (0x9b, 0x55, 0x3b)
+COPPER_HI = (0xe0, 0x8e, 0x64)
+VERD = (0x53, 0xa8, 0x8b)
+VERD_D = (0x3e, 0x86, 0x6e)
+VERD_HI = (0x74, 0xc2, 0xa6)
+DRIP = (0x8c, 0x6e, 0x5c)
+DRIP_D = (0x6e, 0x54, 0x45)
+DRIP_HI = (0xa6, 0x87, 0x72)
 
 
 def clamp(v):
@@ -85,31 +96,61 @@ def stone_base(px, rng, darken=0.0):
                 break
 
 
+def copper_tone(rng, oxid):
+    """A copper pixel; with probability `oxid` it has oxidised to verdigris."""
+    if rng.random() < oxid:
+        return (VERD, VERD_D, VERD_HI)[rng.integers(3)]
+    return (COPPER, COPPER_D, COPPER_HI)[rng.integers(3)]
+
+
+def copper_frame(px, rng, oxid_top=0.25, oxid_bottom=0.6):
+    """1px copper border on all four edges, oxidising toward the bottom."""
+    for x in range(16):
+        px[x, 0] = copper_tone(rng, oxid_top) + (255,)
+        px[x, 15] = copper_tone(rng, oxid_bottom) + (255,)
+    for y in range(16):
+        o = oxid_top + (oxid_bottom - oxid_top) * (y / 15)
+        px[0, y] = copper_tone(rng, o) + (255,)
+        px[15, y] = copper_tone(rng, o) + (255,)
+    for (rx, ry) in [(0, 0), (15, 0), (0, 15), (15, 15)]:
+        px[rx, ry] = COPPER_HI + (255,)
+
+
+def verdigris_streaks(px, rng, cols, y_start=1):
+    """Teal oxidation runoff bleeding down onto the stone from the copper."""
+    for x in cols:
+        ln = 5 + int(rng.integers(7))
+        end = min(y_start + ln, 15)
+        for y in range(y_start, end):
+            t = 0.45 * (1 - (y - y_start) / ln)
+            px[x, y] = blend(px[x, y][:3], VERD, t) + (255,)
+        if rng.integers(3) == 0:
+            px[x, min(end, 14)] = VERD_HI + (255,)
+
+
 def tex_side():
     im = new(16, 16)
     px = im.load()
     rng = np.random.default_rng(1001)
     stone_base(px, rng)
-    cols = [2 + int(rng.integers(2)), 7 + int(rng.integers(2)), 12 + int(rng.integers(2))]
-    for x in cols:
-        if rng.integers(4) == 0:
-            continue
-        ln = 6 + int(rng.integers(8))
-        for y in range(ln):
-            base = px[x, y][:3]
-            t = 0.35 * (1.0 - y / ln)
-            px[x, y] = blend(base, WATER, t) + (255,)
-            if rng.integers(3) == 0 and x + 1 < 16:
-                px[x + 1, y] = blend(px[x + 1, y][:3], WATER, t * 0.6) + (255,)
-    for _ in range(3):
-        px[int(rng.integers(16)), 8 + int(rng.integers(8))] = STONE_HI + (255,)
+    copper_frame(px, rng)
+    verdigris_streaks(px, rng, [3, 7, 11], y_start=1)
+    for (rx, ry) in [(0, 5), (0, 10), (15, 5), (15, 10)]:
+        px[rx, ry] = COPPER_HI + (255,)
     return im
 
 
 def tex_bottom():
     im = new(16, 16)
+    px = im.load()
     rng = np.random.default_rng(2002)
-    stone_base(im.load(), rng, darken=0.10)
+    stone_base(px, rng, darken=0.10)
+    # copper corner brackets so the housing reads as copper-clad from below too
+    for (cx, cy, dx, dy) in [(0, 0, 1, 1), (15, 0, -1, 1), (0, 15, 1, -1), (15, 15, -1, -1)]:
+        for k in range(3):
+            px[cx, cy + dy * k] = copper_tone(rng, 0.5) + (255,)
+            px[cx + dx * k, cy] = copper_tone(rng, 0.5) + (255,)
+        px[cx, cy] = COPPER_HI + (255,)
     return im
 
 
@@ -118,13 +159,14 @@ def tex_top():
     px = im.load()
     rng = np.random.default_rng(3003)
     stone_base(px, rng, darken=0.02)
+    copper_frame(px, rng, oxid_top=0.45, oxid_bottom=0.5)  # wet rim, well oxidised
     x0, y0, x1, y1 = 2, 2, 13, 13
+    # dark inner bevel just inside the copper rim
     for x in range(x0 - 1, x1 + 2):
         px[x, y0 - 1] = shade((0x6a, 0x6a, 0x6e), -0.25) + (255,)
-        px[x, y1 + 1] = STONE_HI + (255,)
     for y in range(y0 - 1, y1 + 2):
         px[x0 - 1, y] = shade((0x6a, 0x6a, 0x6e), -0.25) + (255,)
-        px[x1 + 1, y] = STONE_HI + (255,)
+    # water fill
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
             dy = (y - y0) / (y1 - y0)
@@ -132,18 +174,20 @@ def tex_top():
             if rng.integers(5) == 0:
                 c = blend(c, WATER_L, 0.5)
             px[x, y] = c + (255,)
+    # pointed dripstone tips poking up through the water (erosion motif)
+    for (sx, sy) in [(5, 6), (9, 9), (11, 5)]:
+        px[sx, sy] = DRIP_HI + (255,)
+        for (ox, oy, sh) in [(0, 1, 0.0), (-1, 1, -0.12), (1, 1, -0.12), (0, 2, -0.22)]:
+            xx, yy = sx + ox, sy + oy
+            if x0 <= xx <= x1 and y0 <= yy <= y1:
+                px[xx, yy] = shade(DRIP, sh) + (255,)
+    # sediment along the near edge + surface ripples
     for x in range(x0, x1 + 1):
-        h = 1 + int(rng.integers(3))
-        for k in range(h):
-            y = y1 - k
+        if rng.integers(2) == 0:
             c = SAND if rng.integers(2) == 0 else GRAVEL
-            px[x, y] = blend(c, WATER, 0.25 * (k + 1)) + (255,)
-    for _ in range(4):
-        x = x0 + 1 + int(rng.integers(x1 - x0 - 1))
-        y = y0 + 1 + int(rng.integers(4))
-        px[x, y] = WATER_HI + (255,)
-        if x + 1 <= x1:
-            px[x + 1, y] = blend(WATER, WATER_HI, 0.5) + (255,)
+            px[x, y1] = blend(c, WATER, 0.3) + (255,)
+    for _ in range(3):
+        px[x0 + 1 + int(rng.integers(x1 - x0 - 1)), y0 + 1 + int(rng.integers(3))] = WATER_HI + (255,)
     return im
 
 
@@ -152,38 +196,53 @@ def tex_front():
     px = im.load()
     rng = np.random.default_rng(4004)
     stone_base(px, rng, darken=0.04)
-    x0, y0, x1, y1 = 4, 4, 11, 12
-    for x in range(x0 - 1, x1 + 2):
-        px[x, y0 - 1] = IRON_HI + (255,)
-        px[x, y1 + 1] = IRON_D + (255,)
-    for y in range(y0 - 1, y1 + 2):
-        px[x0 - 1, y] = IRON_HI + (255,)
-        px[x1 + 1, y] = IRON_D + (255,)
-    for y in range(y0, y1 + 1):
-        for x in range(x0, x1 + 1):
-            px[x, y] = DARK + (255,)
-    for x in range(x0 + 1, x1 + 1, 2):
-        for y in range(y0, y1 + 1):
-            px[x, y] = blend(IRON, DARK, 0.3 + 0.4 * rng.random()) + (255,)
-    for _ in range(3):
-        x = x0 + 1 + int(rng.integers(x1 - x0 - 1))
-        ln = 2 + int(rng.integers(4))
-        yy = y0
-        for yy in range(y0, min(y0 + ln, y1 + 1)):
-            px[x, yy] = blend(WATER_L, DARK, 0.15) + (255,)
-        if yy + 1 <= y1:
-            px[x, yy + 1] = WATER_HI + (255,)
-    for x in range(x0, x1 + 1):
-        h = 1 if x in (x0, x1) else 1 + int(rng.integers(3))
-        for k in range(h):
-            y = y1 - k
+    copper_frame(px, rng, oxid_top=0.2, oxid_bottom=0.55)
+    # recessed dark housing behind the wheel (dark stone, not pure black, so the
+    # lighter grindstone disc reads against it)
+    house = (0x2b, 0x2b, 0x31)
+    for y in range(3, 14):
+        for x in range(3, 13):
+            px[x, y] = shade(house, 0.06 * rng.random()) + (255,)
+    cx, cy, r = 7.5, 8.0, 4.6
+    wheel = [(0x9b, 0x9b, 0x9f), (0xa9, 0xa9, 0xad), (0x8d, 0x8d, 0x92), (0xb2, 0xb2, 0xb6)]
+
+    def dist(x, y):
+        return ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
+
+    # grinding-wheel disc: light stone, dark outer rim to define the circle,
+    # plus a concentric groove
+    for y in range(16):
+        for x in range(16):
+            d = dist(x, y)
+            if d <= r:
+                c = wheel[rng.integers(len(wheel))]
+                if d >= r - 0.9:
+                    c = shade(c, -0.5)
+                elif 2.7 <= d <= 3.3:
+                    c = shade(c, -0.28)
+                px[x, y] = c + (255,)
+    # four spokes
+    for k in range(-4, 5):
+        for (xx, yy) in [(int(cx + k), int(cy)), (int(cx), int(cy + k))]:
+            if dist(xx, yy) <= r - 1.2:
+                px[xx, yy] = shade(px[xx, yy][:3], -0.22) + (255,)
+    # iron hub + copper axle at the centre
+    for y in range(16):
+        for x in range(16):
+            d = dist(x, y)
+            if d <= 1.5:
+                px[x, y] = IRON_D + (255,)
+            if d <= 0.9:
+                px[x, y] = COPPER_HI + (255,)
+    # a subtle water drip from the top lip onto the wheel
+    px[7, 2] = WATER_L + (255,)
+    px[7, 3] = blend(WATER_L, house, 0.3) + (255,)
+    px[10, 3] = WATER_HI + (255,)
+    # sediment collecting at the base of the housing
+    for x in range(3, 13):
+        if rng.integers(2) == 0:
             c = GRAVEL if rng.integers(3) == 0 else SAND
-            px[x, y] = shade(c, -0.05 * k) + (255,)
-    for (rx, ry) in [(2, 2), (13, 2), (2, 13), (13, 13)]:
-        px[rx, ry] = IRON_HI + (255,)
-        px[rx + 1, ry + 1] = IRON_D + (255,)
-        px[rx, ry + 1] = IRON + (255,)
-        px[rx + 1, ry] = IRON + (255,)
+            px[x, 13] = shade(c, -0.05) + (255,)
     return im
 
 
