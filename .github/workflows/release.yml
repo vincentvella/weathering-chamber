@@ -41,6 +41,16 @@ jobs:
       - name: Build all versions
         run: ./gradlew build --stacktrace
 
+      # Both jars share mod.version but must publish under UNIQUE version numbers
+      # (Modrinth enforces per-project uniqueness). Read the base version so each
+      # step can suffix it with its Minecraft version, matching the jar's own
+      # "<mod.version>+<mc>" identity.
+      - name: Read mod version
+        id: modver
+        run: |
+          version=$(grep -E '^mod\.version' stonecutter.properties.toml | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
       # Two publishes, because the two jars target different Minecraft versions.
       # Each platform only activates when its token is present (GitHub Releases
       # always runs via the built-in token), so this is safe to keep even before
@@ -56,6 +66,7 @@ jobs:
           curseforge-id: ${{ vars.CURSEFORGE_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           name: Weathering Chamber ${{ github.ref_name }}
+          version: ${{ steps.modver.outputs.value }}+1.21.1
           version-type: release
           loaders: fabric
           game-versions: |
@@ -77,6 +88,7 @@ jobs:
           curseforge-id: ${{ vars.CURSEFORGE_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           name: Weathering Chamber ${{ github.ref_name }}
+          version: ${{ steps.modver.outputs.value }}+26.2
           version-type: release
           loaders: fabric
           game-versions: '26.2'
