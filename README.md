@@ -41,13 +41,14 @@ downstream of it — gravel and sand — becomes renewable too.
 - Hoppers automate it: they insert into the input and pull from the output.
 - Break the machine and it drops its contents (the input/output stacks aren't lost).
 
-**Craft it** around a furnace core, with cobblestone corners, **copper** sides
-(the game's *weathering* metal) and **pointed dripstone** top/bottom (formed by
-water eroding stone — literally erosion):
+**Craft it** around a **grindstone** core (the grinding mechanism), with
+cobblestone corners, **copper** sides (the game's *weathering* metal) and
+**pointed dripstone** top/bottom (formed by water eroding stone — literally
+erosion). Every ingredient maps to a real part of the machine:
 
 ```
-C D C     C = cobblestone      D = pointed dripstone
-K F K     K = copper ingot     F = furnace
+C D C     C = cobblestone       D = pointed dripstone
+K G K     K = copper ingot      G = grindstone
 C D C
 ```
 

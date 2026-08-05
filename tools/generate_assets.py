@@ -252,17 +252,18 @@ def gui_sheet():
     for y in range(5, 16):
         for x in range(7, 169):
             px[x, y] = blend(px[x, y][:3], WATER_L, 0.06) + (255,)
-    draw_slot(px, 56, 17)
+    # One centred row: input (44,35) -> arrow (76,35) -> output (116,35).
+    draw_slot(px, 44, 35)
     draw_slot(px, 116, 35)
     draw_ring(px, 116, 35, blend(SLOT, SAND, 0.35))
     m = arrow_mask()
     for y in range(16):
         for x in range(24):
             if m[y, x]:
-                px[79 + x, 34 + y] = (0x9a, 0x9a, 0x9a, 255)
+                px[76 + x, 35 + y] = (0x9a, 0x9a, 0x9a, 255)
     for x in range(24):
         if m[0, x]:
-            px[79 + x, 34] = (0x80, 0x80, 0x80, 255)
+            px[76 + x, 35] = (0x80, 0x80, 0x80, 255)
     for row in range(3):
         for col in range(9):
             draw_slot(px, 8 + col * 18, 84 + row * 18)
@@ -475,7 +476,7 @@ def main():
     sheet = gui_sheet()
     filled_cols = round(0.65 * 24)
     fill = sheet.crop((176, 14, 176 + filled_cols, 30))
-    sheet.alpha_composite(fill, (79, 34))
+    sheet.alpha_composite(fill, (76, 35))
     save(upscale(sheet.crop((0, 0, 176, 166)), 3), os.path.join(IMG, "gui.png"))
     save(render_chain(), os.path.join(IMG, "erosion_chain.png"))
     save(render_banner(iso), os.path.join(IMG, "banner.png"))

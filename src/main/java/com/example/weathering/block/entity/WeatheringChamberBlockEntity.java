@@ -41,6 +41,12 @@ public class WeatheringChamberBlockEntity extends BlockEntity implements Worldly
         EROSION.put(Items.GRAVEL, new ItemStack(Items.SAND));
     }
 
+    /** True if the chamber can grind this item (a valid input in the EROSION chain).
+     *  Shared by the block entity (hopper insertion) and the menu (GUI input slot). */
+    public static boolean isGrindable(ItemStack stack) {
+        return EROSION.containsKey(stack.getItem());
+    }
+
     protected final ContainerData dataAccess = new ContainerData() {
         @Override
         public int get(int index) {
@@ -221,6 +227,13 @@ public class WeatheringChamberBlockEntity extends BlockEntity implements Worldly
     @Override
     public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction dir) {
         return slot == OUTPUT_SLOT;
+    }
+
+    // Reject anything that isn't grindable so hoppers can't jam the single input slot
+    // with junk. Checked by HopperBlockEntity on insertion (and mirrored in the menu).
+    @Override
+    public boolean canPlaceItem(int slot, ItemStack stack) {
+        return slot == INPUT_SLOT && isGrindable(stack);
     }
 
     // ---------------------------------------------------------------- NBT (signature diverges)

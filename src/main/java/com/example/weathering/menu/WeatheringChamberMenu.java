@@ -1,6 +1,7 @@
 package com.example.weathering.menu;
 
 import com.example.weathering.ModMenuTypes;
+import com.example.weathering.block.entity.WeatheringChamberBlockEntity;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -33,8 +34,14 @@ public class WeatheringChamberMenu extends AbstractContainerMenu {
         this.data = data;
         container.startOpen(playerInventory.player);
 
-        // Positions line up with the vanilla furnace GUI texture we reuse.
-        this.addSlot(new Slot(container, INPUT_SLOT, 56, 17)); // input
+        // A clean left-to-right process on one row: input -> progress arrow -> output,
+        // centred on the 176px-wide panel (matches the generated GUI texture).
+        this.addSlot(new Slot(container, INPUT_SLOT, 44, 35) { // input — grindable items only
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return WeatheringChamberBlockEntity.isGrindable(stack);
+            }
+        });
         this.addSlot(new Slot(container, OUTPUT_SLOT, 116, 35) { // output — no manual insert
             @Override
             public boolean mayPlace(ItemStack stack) {

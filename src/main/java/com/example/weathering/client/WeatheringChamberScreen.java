@@ -35,7 +35,7 @@ public class WeatheringChamberScreen extends AbstractContainerScreen<WeatheringC
             x, y, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
         if (this.menu.isCrafting()) {
             graphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, TEXTURE,
-                x + 79, y + 34, 176.0F, 14.0F, this.menu.getScaledProgress(), 16, 256, 256);
+                x + 76, y + 35, 176.0F, 14.0F, this.menu.getScaledProgress(), 16, 256, 256);
         }
     }
     *///?} else {
@@ -45,7 +45,7 @@ public class WeatheringChamberScreen extends AbstractContainerScreen<WeatheringC
         int y = this.topPos;
         graphics.blit(TEXTURE, x, y, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
         if (this.menu.isCrafting()) {
-            graphics.blit(TEXTURE, x + 79, y + 34, 176.0F, 14.0F, this.menu.getScaledProgress(), 16, 256, 256);
+            graphics.blit(TEXTURE, x + 76, y + 35, 176.0F, 14.0F, this.menu.getScaledProgress(), 16, 256, 256);
         }
     }
 

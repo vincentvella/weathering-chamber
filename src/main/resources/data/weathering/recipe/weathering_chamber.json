@@ -3,14 +3,14 @@
   "category": "misc",
   "pattern": [
     "CDC",
-    "KFK",
+    "KGK",
     "CDC"
   ],
   "key": {
     "C": { "item": "minecraft:cobblestone" },
     "D": { "item": "minecraft:pointed_dripstone" },
     "K": { "item": "minecraft:copper_ingot" },
-    "F": { "item": "minecraft:furnace" }
+    "G": { "item": "minecraft:grindstone" }
   },
   "result": {
     "id": "weathering:weathering_chamber",
