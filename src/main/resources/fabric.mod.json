@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "weathering",
+  "version": "${version}",
+  "name": "Weathering Chamber",
+  "description": "A water-powered Weathering Chamber that erodes cobblestone into gravel and gravel into sand, making sand a renewable resource.",
+  "authors": [
+    "You"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.example.weathering.WeatheringChamberMod"
+    ],
+    "client": [
+      "com.example.weathering.client.WeatheringChamberModClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16",
+    "minecraft": "${minecraft}",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

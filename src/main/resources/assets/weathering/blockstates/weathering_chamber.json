@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "weathering:block/weathering_chamber" },
+    "facing=east":  { "model": "weathering:block/weathering_chamber", "y": 90 },
+    "facing=south": { "model": "weathering:block/weathering_chamber", "y": 180 },
+    "facing=west":  { "model": "weathering:block/weathering_chamber", "y": 270 }
+  }
+}

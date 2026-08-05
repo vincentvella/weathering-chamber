@@ -1,0 +1,25 @@
+# Gradle / Loom
+.gradle/
+build/
+run/
+remappedSrc/
+*.log
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+bin/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code (per-developer local settings)
+.claude/settings.local.json
+
+# Stonecutter regenerates these per-version subproject trees
+versions/*/build/

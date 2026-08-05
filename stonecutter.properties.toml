@@ -1,0 +1,21 @@
+# Centralized, per-version configuration.
+# https://stonecutter.kikugie.dev/wiki/config/properties#centralized-properties
+
+mod.id = "weathering"
+mod.name = "Weathering Chamber"
+mod.group = "com.example"
+mod.version = "1.0.0"
+
+deps.fabric_loader = "0.19.3"
+loomx.loom_version = "1.17-SNAPSHOT"
+
+["1.21.1"]
+# Range injected into fabric.mod.json's "minecraft" dependency.
+mod.mc_compat = ">=1.21 <=1.21.1"
+mod.mc_releases = ["1.21", "1.21.1"]
+deps.fabric_api = "0.116.15+1.21.1"
+
+["26.2"]
+mod.mc_compat = "~26.2"
+mod.mc_releases = ["26.2"]
+deps.fabric_api = "0.156.0+26.2"

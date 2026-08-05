@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "top": "weathering:block/weathering_chamber_top",
+    "bottom": "weathering:block/weathering_chamber_bottom",
+    "front": "weathering:block/weathering_chamber_front",
+    "side": "weathering:block/weathering_chamber_side"
+  }
+}
