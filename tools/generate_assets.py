@@ -491,12 +491,19 @@ def render_chain(scale=6):
         d.text((x + (cell - (tb[2] - tb[0])) // 2, y + cell + 3), name, font=font,
                fill=(0xc7, 0xcd, 0xd6, 255))
         if i < 2:
-            ax0 = x + cell + 12
-            ax1 = x + cell + gap - 12
+            # centre the arrow (and its label) within the gap between the two tiles
+            gap_start = x + cell
+            gap_center = gap_start + gap // 2
+            margin, head = 10, 12
+            ax0 = gap_start + margin           # line start
+            tip = gap_start + gap - margin     # arrowhead tip
+            ax1 = tip - head                   # line end / head base
             ay = y + cell // 2
             d.line([ax0, ay, ax1, ay], fill=WATER_L + (255,), width=4)
-            d.polygon([(ax1, ay - 8), (ax1 + 12, ay), (ax1, ay + 8)], fill=WATER_L + (255,))
-            d.text(((ax0 + ax1) // 2 - 14, ay - 26), "grind", font=load_font(14),
+            d.polygon([(ax1, ay - 8), (tip, ay), (ax1, ay + 8)], fill=WATER_L + (255,))
+            gf = load_font(14)
+            gb = d.textbbox((0, 0), "grind", font=gf)
+            d.text((gap_center - (gb[2] - gb[0]) // 2, ay - 26), "grind", font=gf,
                    fill=(0x8f, 0xc3, 0xef, 255))
         x += cell + gap
     return im
