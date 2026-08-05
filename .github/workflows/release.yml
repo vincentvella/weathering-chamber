@@ -48,7 +48,7 @@ jobs:
       #   secret  MODRINTH_TOKEN     + variable MODRINTH_ID     (project id/slug)
       #   secret  CURSEFORGE_TOKEN   + variable CURSEFORGE_ID   (numeric project id)
       - name: Publish 1.21.1 jar
-        uses: Kir-Antipov/mc-publish@v3.3.1
+        uses: Kira-NT/mc-publish@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           modrinth-id: ${{ vars.MODRINTH_ID }}
@@ -64,12 +64,12 @@ jobs:
           java: '21'
           dependencies: |
             fabric-api
-          files: |
-            versions/1.21.1/build/libs/*.jar
-            !versions/1.21.1/build/libs/*-sources.jar
+          # Main jar only (mc-publish's documented exclude idiom; a bare "!" line
+          # doesn't work — it also uploads a matching secondary file by default).
+          files: versions/1.21.1/build/libs/!(*-@(dev|sources|javadoc)).jar
 
       - name: Publish 26.2 jar
-        uses: Kir-Antipov/mc-publish@v3.3.1
+        uses: Kira-NT/mc-publish@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           modrinth-id: ${{ vars.MODRINTH_ID }}
@@ -83,6 +83,4 @@ jobs:
           java: '25'
           dependencies: |
             fabric-api
-          files: |
-            versions/26.2/build/libs/*.jar
-            !versions/26.2/build/libs/*-sources.jar
+          files: versions/26.2/build/libs/!(*-@(dev|sources|javadoc)).jar
