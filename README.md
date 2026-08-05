@@ -93,8 +93,7 @@ Requires **JDK 21 and JDK 25** available to Gradle (the toolchain block picks th
 right one per version; the foojay resolver can auto-provision them).
 
 ```bash
-./gradlew build          # builds BOTH versions -> versions/<v>/build/libs/
-./gradlew chiseledBuild   # same fan-out; the canonical "build every version" task
+./gradlew build   # builds BOTH versions -> versions/<v>/build/libs/
 ```
 
 This produces the two distributable jars:

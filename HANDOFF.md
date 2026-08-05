@@ -113,8 +113,8 @@ src/main/resources/
 
 ## Open TODOs / next steps
 
-1. ✅ Done — both versions compile and build. To rebuild all jars at once you can also use
-   `./gradlew chiseledBuild`; `./gradlew build` already builds both here.
+1. ✅ Done — both versions compile and build. `./gradlew build` fans out to both version
+   subprojects (Stonecutter 0.9.7 provides NO `chiseledBuild` task — that name was wrong).
 2. ✅ Done — **content-drop-on-break** implemented as divergence #5 in
    `WeatheringChamberBlock.java` (drops input/output stacks; block still drops via loot table).
 3. ✅ Done — custom block faces (side/top/bottom/front) + a themed GUI sheet replace the
@@ -132,9 +132,8 @@ src/main/resources/
 ## How to build / run
 
 ```
-./gradlew tasks --group stonecutter   # list version switchers + chiseled tasks
-./gradlew build                        # build the ACTIVE version
-./gradlew chiseledBuild                # build ALL versions -> jars in each build/libs
+./gradlew tasks --group stonecutter   # list version switch tasks
+./gradlew build                        # builds BOTH versions -> jars in each build/libs
 ```
 First run downloads Gradle 9.6.1 + MC/mappings/Fabric (several minutes). Needs JDK 21
 (Gradle itself) and JDK 25 (26.2 toolchain; foojay resolver can auto-provision).

@@ -1,0 +1,88 @@
+name: Release
+
+# Cut a release by pushing a version tag, e.g.:
+#   git tag v1.0.0 && git push origin v1.0.0
+# Bump `mod.version` in stonecutter.properties.toml to match the tag first.
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write   # needed to create the GitHub Release
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache auto-provisioned JDK toolchains
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/jdks
+          key: gradle-jdks-${{ runner.os }}
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Root `build` fans out to both version subprojects (Stonecutter 0.9.7 has
+      # no separate chiseledBuild task); the jars land in versions/<v>/build/libs.
+      - name: Build all versions
+        run: ./gradlew build --stacktrace
+
+      # Two publishes, because the two jars target different Minecraft versions.
+      # Each platform only activates when its token is present (GitHub Releases
+      # always runs via the built-in token), so this is safe to keep even before
+      # every platform is set up. Set these repo secrets / variables to enable:
+      #   secret  MODRINTH_TOKEN     + variable MODRINTH_ID     (project id/slug)
+      #   secret  CURSEFORGE_TOKEN   + variable CURSEFORGE_ID   (numeric project id)
+      - name: Publish 1.21.1 jar
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          modrinth-id: ${{ vars.MODRINTH_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ vars.CURSEFORGE_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          name: Weathering Chamber ${{ github.ref_name }}
+          version-type: release
+          loaders: fabric
+          game-versions: |
+            1.21
+            1.21.1
+          java: '21'
+          dependencies: |
+            fabric-api
+          files: |
+            versions/1.21.1/build/libs/*.jar
+            !versions/1.21.1/build/libs/*-sources.jar
+
+      - name: Publish 26.2 jar
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          modrinth-id: ${{ vars.MODRINTH_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ vars.CURSEFORGE_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          name: Weathering Chamber ${{ github.ref_name }}
+          version-type: release
+          loaders: fabric
+          game-versions: '26.2'
+          java: '25'
+          dependencies: |
+            fabric-api
+          files: |
+            versions/26.2/build/libs/*.jar
+            !versions/26.2/build/libs/*-sources.jar
