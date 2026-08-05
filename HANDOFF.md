@@ -117,7 +117,11 @@ src/main/resources/
    `./gradlew chiseledBuild`; `./gradlew build` already builds both here.
 2. ✅ Done — **content-drop-on-break** implemented as divergence #5 in
    `WeatheringChamberBlock.java` (drops input/output stacks; block still drops via loot table).
-3. Optional: custom block + GUI textures to replace the reused vanilla art.
+3. ✅ Done — custom block faces (side/top/bottom/front) + a themed GUI sheet replace the
+   reused vanilla art. They're **generated** by `tools/generate_assets.py` (Python/Pillow,
+   deterministic seeds), which also emits the GitHub preview art under `docs/img/`. The
+   block model now uses `orientable_with_bottom`; the screen points at the custom GUI.
+   Regenerate with `python tools/generate_assets.py`.
 4. Datapack/asset JSON was reviewed statically and uses the 1.21+ singular dir names
    (`recipe`, `loot_table`, `tags/block`) and `id`-based recipe result — valid for both
    targets; the 1.21.4+ `assets/weathering/items/` model definition covers 26.2 while
