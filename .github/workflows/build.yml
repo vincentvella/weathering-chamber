@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Gradle itself runs on JDK 21. The 26.2 subproject needs a JDK 25
       # toolchain, which the foojay resolver (configured in settings.gradle.kts)
@@ -31,13 +31,13 @@ jobs:
           java-version: '21'
 
       - name: Cache auto-provisioned JDK toolchains
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.gradle/jdks
           key: gradle-jdks-${{ runner.os }}
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       # Root `build` fans out to both version subprojects (Stonecutter 0.9.7 has
       # no separate chiseledBuild task); the jars land in versions/<v>/build/libs.
@@ -45,7 +45,7 @@ jobs:
         run: ./gradlew build --stacktrace
 
       - name: Upload jars
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: weathering-chamber-jars
           path: |
