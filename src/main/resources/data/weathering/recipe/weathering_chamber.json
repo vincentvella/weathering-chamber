@@ -2,12 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "CCC",
-    "CFC",
-    "CCC"
+    "CDC",
+    "KFK",
+    "CDC"
   ],
   "key": {
     "C": { "item": "minecraft:cobblestone" },
+    "D": { "item": "minecraft:pointed_dripstone" },
+    "K": { "item": "minecraft:copper_ingot" },
     "F": { "item": "minecraft:furnace" }
   },
   "result": {
