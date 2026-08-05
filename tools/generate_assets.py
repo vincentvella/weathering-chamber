@@ -535,6 +535,20 @@ def render_banner(iso):
     return im
 
 
+def render_icon(iso, size=256):
+    """Square mod/project icon: the iso block centred on a themed gradient.
+    Serves both the in-game Mod Menu and the Modrinth/CurseForge logo."""
+    top_c, bot_c = np.array([0x22, 0x30, 0x42]), np.array([0x12, 0x16, 0x1c])
+    grad = np.zeros((size, size, 3), dtype=np.uint8)
+    for y in range(size):
+        grad[y, :] = (top_c * (1 - y / size) + bot_c * (y / size)).astype(np.uint8)
+    im = Image.fromarray(np.dstack([grad, np.full((size, size), 255, np.uint8)]), "RGBA")
+    scale = (size * 0.86) / max(iso.width, iso.height)
+    block = iso.resize((max(1, round(iso.width * scale)), max(1, round(iso.height * scale))), Image.NEAREST)
+    im.alpha_composite(block, ((size - block.width) // 2, (size - block.height) // 2))
+    return im
+
+
 def save(im, path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     im.save(path)
@@ -551,6 +565,10 @@ def main():
     print("Preview art:")
     iso = render_iso(faces["top"], faces["front"], faces["side"])
     save(iso, os.path.join(IMG, "block_iso.png"))
+    # Mod / project icon (in-jar for the Mod Menu + a copy for the store logo).
+    icon = render_icon(iso, 256)
+    save(icon, os.path.join(ROOT, "src", "main", "resources", "assets", "weathering", "icon.png"))
+    save(icon, os.path.join(IMG, "icon.png"))
     save(render_faces(faces), os.path.join(IMG, "block_faces.png"))
     # GUI preview: show the water->sand progress arrow ~65% filled so the themed
     # detail is visible (in-game it fills left-to-right as the grind progresses).

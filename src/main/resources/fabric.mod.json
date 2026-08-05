@@ -7,8 +7,13 @@
   "authors": [
     "vincentvella"
   ],
-  "contact": {},
+  "contact": {
+    "homepage": "https://github.com/vincentvella/weathering-chamber",
+    "sources": "https://github.com/vincentvella/weathering-chamber",
+    "issues": "https://github.com/vincentvella/weathering-chamber/issues"
+  },
   "license": "MIT",
+  "icon": "assets/weathering/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [

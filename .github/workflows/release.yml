@@ -51,6 +51,21 @@ jobs:
           version=$(grep -E '^mod\.version' stonecutter.properties.toml | sed -E 's/.*"([^"]+)".*/\1/')
           echo "value=$version" >> "$GITHUB_OUTPUT"
 
+      # Pull this version's section out of CHANGELOG.md for the release notes on
+      # every platform (falls back to nothing if the version has no entry yet).
+      - name: Extract changelog for this release
+        id: changelog
+        run: |
+          {
+            echo "body<<CHANGELOG_EOF"
+            awk -v ver="${{ steps.modver.outputs.value }}" '
+              /^## \[/ { if (s) exit; if (index($0, "[" ver "]")) { s=1; next } }
+              /^\[[^]]+\]:/ { if (s) exit }
+              s && (started || NF) { started=1; print }
+            ' CHANGELOG.md
+            echo "CHANGELOG_EOF"
+          } >> "$GITHUB_OUTPUT"
+
       # Two publishes, because the two jars target different Minecraft versions.
       # Each platform only activates when its token is present (GitHub Releases
       # always runs via the built-in token), so this is safe to keep even before
@@ -68,6 +83,7 @@ jobs:
           name: Weathering Chamber ${{ github.ref_name }}
           version: ${{ steps.modver.outputs.value }}+1.21.1
           version-type: release
+          changelog: ${{ steps.changelog.outputs.body }}
           loaders: fabric
           game-versions: |
             1.21
@@ -90,6 +106,7 @@ jobs:
           name: Weathering Chamber ${{ github.ref_name }}
           version: ${{ steps.modver.outputs.value }}+26.2
           version-type: release
+          changelog: ${{ steps.changelog.outputs.body }}
           loaders: fabric
           game-versions: '26.2'
           java: '25'
