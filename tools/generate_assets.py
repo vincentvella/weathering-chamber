@@ -24,6 +24,9 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEX = os.path.join(ROOT, "src", "main", "resources", "assets", "weathering", "textures")
 IMG = os.path.join(ROOT, "docs", "img")
+# Optional real vanilla textures for the erosion diagram (gitignored — Mojang's
+# assets, not ours). If absent, the diagram falls back to procedural swatches.
+VANILLA = os.path.join(ROOT, "tools", "vanilla")
 
 # ---------------------------------------------------------------- palette
 STONE = [(0x6f, 0x6f, 0x73), (0x7c, 0x7c, 0x80), (0x89, 0x89, 0x90),
@@ -455,8 +458,20 @@ def swatch(kind, seed):
     return im
 
 
+def material_tile(vanilla_name, kind, seed):
+    """The real vanilla texture if it's been dropped into tools/vanilla/,
+    otherwise a procedural stand-in so the generator still runs on a clean clone."""
+    p = os.path.join(VANILLA, vanilla_name + ".png")
+    if os.path.exists(p):
+        return Image.open(p).convert("RGBA")
+    return swatch(kind, seed)
+
+
 def render_chain(scale=6):
-    tiles = [("cobble", "Cobblestone", 11), ("gravel", "Gravel", 22), ("sand", "Sand", 33)]
+    # (vanilla filename, procedural-fallback kind, label, seed)
+    tiles = [("cobblestone", "cobble", "Cobblestone", 11),
+             ("gravel", "gravel", "Gravel", 22),
+             ("sand", "sand", "Sand", 33)]
     cell = 16 * scale
     gap = 64
     pad = 24
@@ -468,8 +483,8 @@ def render_chain(scale=6):
     font = load_font(20)
     x = pad
     y = pad
-    for i, (kind, name, seed) in enumerate(tiles):
-        big = upscale(swatch(kind, seed), scale)
+    for i, (vanilla_name, kind, name, seed) in enumerate(tiles):
+        big = upscale(material_tile(vanilla_name, kind, seed), scale)
         im.alpha_composite(big, (x, y))
         d.rectangle([x - 1, y - 1, x + cell, y + cell], outline=(0x3a, 0x40, 0x4a, 255))
         tb = d.textbbox((0, 0), name, font=font)

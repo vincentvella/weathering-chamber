@@ -108,10 +108,11 @@ Switch which version your IDE compiles against with the generated Stonecutter ta
 **`Set active project to 1.21.1`** / **`… 26.2`**; per-version `runClient` /
 `runServer` tasks launch a dev game for the active version.
 
-> Both versions **compile and build**. In-game runtime (world load, GUI render,
-> datapack load) hasn't been smoke-tested yet — that's the natural next step.
-> 26.2 postdates the tooling's training data, but every 26.2 signature here was
-> verified against the actual downloaded 26.2 jars.
+> Both versions **compile and build** (verified in CI on every push), and the
+> **1.21.1** client has been smoke-tested via `runClient` — the mod loads, block
+> textures + model resolve, and the recipe parses with no errors. 26.2 postdates
+> the tooling's training data, but every 26.2 signature here was verified against
+> the actual downloaded 26.2 jars.
 
 ## Art & assets
 
@@ -122,6 +123,12 @@ Textures are **generated**, not hand-drawn — [`tools/generate_assets.py`](tool
   `src/main/resources/assets/weathering/textures/`.
 - **Repo previews:** the banner, isometric render, face card, GUI preview, and
   erosion-chain diagram in `docs/img/` (everything shown in this README).
+
+The erosion diagram shows the **vanilla** cobblestone, gravel and sand textures,
+which are © Mojang Studios and used here for reference only — they are **not**
+covered by this repo's MIT license. They live in `tools/vanilla/` (gitignored);
+drop those three PNGs in there to regenerate the diagram with them, otherwise the
+generator falls back to procedural stand-ins.
 
 Regenerate everything with:
 

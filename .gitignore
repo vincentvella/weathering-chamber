@@ -23,3 +23,8 @@ Thumbs.db
 
 # Stonecutter regenerates these per-version subproject trees
 versions/*/build/
+
+# Raw vanilla textures used only to render the README erosion diagram.
+# These are Mojang's assets, not ours — do not commit them. Extract locally with:
+#   unzip -oj <mc-jar> 'assets/minecraft/textures/block/{cobblestone,gravel,sand}.png' -d tools/vanilla
+tools/vanilla/
